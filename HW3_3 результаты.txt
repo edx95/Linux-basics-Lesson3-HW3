@@ -1,0 +1,149 @@
+﻿3. Создать пользователя с правами суперпользователя. Проверить результат.
+
+# проверяем список групп у пользователя test_user3
+student@Ubuntu-MySQL-VirtualBox:~$  groups test_user3
+test_user3 : test_user3
+
+# проверяем учетную запись в которой происходит работа
+student@Ubuntu-MySQL-VirtualBox:~$ whoami
+student
+
+#переключаемся на работу с учетной записи  test_user3
+student@Ubuntu-MySQL-VirtualBox:~$ su test_user3
+Пароль: 
+test_user3@Ubuntu-MySQL-VirtualBox:/home/student$ whoami
+test_user3
+
+#пробуем выполнить команды от пользователя с повышеннеми привелегиями
+test_user3@Ubuntu-MySQL-VirtualBox:/home/student$ apt update
+Чтение списков пакетов… Готово
+W: chmod 0700 of directory /var/lib/apt/lists/partial failed - SetupAPTPartialDirectory (1: Операция не позволена)
+E: Не удалось открыть файл блокировки /var/lib/apt/lists/lock - open (13: Отказано в доступе)
+E: Невозможно заблокировать каталог /var/lib/apt/lists/
+W: Проблема при удалении файла /var/cache/apt/pkgcache.bin - RemoveCaches (13: Отказано в доступе)
+test_user3@Ubuntu-MySQL-VirtualBox:/home/student$ sudo apt update
+[sudo] пароль для test_user3: 
+test_user3 отсутствует в файле sudoers. Данное действие будет занесено в журнал.
+
+# отключаем работу учетной записи 
+test_user3@Ubuntu-MySQL-VirtualBox:/home/student$ exit
+exit
+student@Ubuntu-MySQL-VirtualBox:~$ 
+
+#проверяем название учетной записи в которой ведется работа 
+student@Ubuntu-MySQL-VirtualBox:~$ whoami
+student
+
+# добавляем повышенные права (администраторские) пользователю test_user3
+student@Ubuntu-MySQL-VirtualBox:~$ sudo usermod -a -G sudo test_user3
+student@Ubuntu-MySQL-VirtualBox:~$ groups test_user3
+
+# проверяем список групп у пользователя test_user3
+test_user3 : test_user3 sudo
+# в учетной записи  test_user3 появилась группа с повышенными привелегиями  sudo
+
+# переключаемся на работу с учетной записи  test_user3
+student@Ubuntu-MySQL-VirtualBox:~$ su test_user3
+Пароль: 
+To run a command as administrator (user "root"), use "sudo <command>".
+See "man sudo_root" for details.
+
+# проверяем возможность выполнить администраторские команды с повышенными привелегиями.
+test_user3@Ubuntu-MySQL-VirtualBox:/home/student$ sudo apt update
+[sudo] пароль для test_user3: 
+Сущ:1 http://ru.archive.ubuntu.com/ubuntu xenial InRelease
+Пол:2 http://ru.archive.ubuntu.com/ubuntu xenial-updates InRelease [109 kB]
+Пол:3 http://ru.archive.ubuntu.com/ubuntu xenial-backports InRelease [107 kB]
+Пол:4 http://ru.archive.ubuntu.com/ubuntu xenial-updates/main amd64 DEP-11 Metadata [327 kB]
+Пол:5 http://ru.archive.ubuntu.com/ubuntu xenial-updates/universe amd64 DEP-11 Metadata [281 kB]   
+Сущ:6 https://dbeaver.io/debs/dbeaver-ce  InRelease                                                
+Пол:7 https://esm.ubuntu.com/infra/ubuntu xenial-infra-security InRelease [7 515 B]               
+Пол:8 http://ru.archive.ubuntu.com/ubuntu xenial-updates/multiverse amd64 DEP-11 Metadata [5 956 B]                                    
+Пол:9 https://esm.ubuntu.com/infra/ubuntu xenial-infra-updates InRelease [7 475 B]                
+Пол:10 http://ru.archive.ubuntu.com/ubuntu xenial-backports/main amd64 DEP-11 Metadata [3 328 B]     
+Пол:11 http://ru.archive.ubuntu.com/ubuntu xenial-backports/universe amd64 DEP-11 Metadata [6 608 B] 
+Сущ:12 http://ppa.launchpad.net/linuxuprising/java/ubuntu xenial InRelease
+Сущ:13 http://ppa.launchpad.net/webupd8team/java/ubuntu xenial InRelease                                                                              
+Пол:14 http://security.ubuntu.com/ubuntu xenial-security InRelease [109 kB]                                                                           
+Пол:15 http://security.ubuntu.com/ubuntu xenial-security/main amd64 DEP-11 Metadata [93,7 kB]
+Пол:16 http://security.ubuntu.com/ubuntu xenial-security/universe amd64 DEP-11 Metadata [130 kB]
+Пол:17 http://security.ubuntu.com/ubuntu xenial-security/multiverse amd64 DEP-11 Metadata [2 468 B]                                                                                                        
+Получено 1 190 kB за 6с (193 kB/s)                                                                                                                                                                         
+Чтение списков пакетов… Готово
+Построение дерева зависимостей       
+Чтение информации о состоянии… Готово
+Все пакеты имеют последние версии.
+# администраторские команды выполнены
+
+# отключаем работу учетной записи test_user3
+test_user3@Ubuntu-MySQL-VirtualBox:/home/student$ exit
+exit
+
+#  учетную запись test_user3 - удаляем из группы с повышенными привелегиями
+student@Ubuntu-MySQL-VirtualBox:~$ sudo deluser test_user3 sudo
+Удаляется пользователь «test_user3» из группы «sudo» ...
+Готово.
+
+# пробуем выполнить администраторские команды из учетной записи test_user3
+student@Ubuntu-MySQL-VirtualBox:~$ su test_user3
+Пароль: 
+test_user3@Ubuntu-MySQL-VirtualBox:/home/student$ sudo apt update
+[sudo] пароль для test_user3: 
+test_user3 отсутствует в файле sudoers. Данное действие будет занесено в журнал.
+test_user3@Ubuntu-MySQL-VirtualBox:/home/student$
+
+#добавляем пользователя test_user5 прямо в группу root с GID 0 и проверям записи регистрации в системных файлах
+student@Ubuntu-MySQL-VirtualBox:~$ sudo adduser test_user5 --gid 0
+
+student@Ubuntu-MySQL-VirtualBox:~$ sudo adduser test_user3 --gid 0
+[sudo] пароль для student: 
+adduser: Пользователь «test_user3» уже существует.
+student@Ubuntu-MySQL-VirtualBox:~$ sudo adduser test_user5 --gid 0
+Добавляется пользователь «test_user5» ...
+Добавляется новый пользователь «test_user5» (1004) в группу «root» ...
+Создаётся домашний каталог «/home/test_user5» ...
+Копирование файлов из «/etc/skel» ...
+Введите новый пароль UNIX: 
+Повторите ввод нового пароля UNIX: 
+passwd: пароль успешно обновлён
+Изменение информации о пользователе test_user5
+Введите новое значение или нажмите ENTER для выбора значения по умолчанию
+	Полное имя []: 
+	Номер комнаты []: 
+	Рабочий телефон []: 
+	Домашний телефон []: 
+	Другое []: 
+Данная информация корректна? [Y/n] 
+student@Ubuntu-MySQL-VirtualBox:~$ su test_user5
+Пароль: 
+test_user5@Ubuntu-MySQL-VirtualBox:/home/student$ sudo apt update
+[sudo] пароль для test_user5: 
+test_user5 отсутствует в файле sudoers. Данное действие будет занесено в журнал.
+test_user5@Ubuntu-MySQL-VirtualBox:/home/student$ groups test_user5
+test_user5 : root
+test_user5@Ubuntu-MySQL-VirtualBox:/home/student$ sudo apt update
+[sudo] пароль для test_user5: 
+test_user5 отсутствует в файле sudoers. Данное действие будет занесено в журнал.
+
+test_user5@Ubuntu-MySQL-VirtualBox:/home/student$ ls /home
+student  test_user2  test_user3  test_user4  test_user5
+
+test_user5@Ubuntu-MySQL-VirtualBox:/home/student$ apt update
+Чтение списков пакетов… Готово
+W: chmod 0700 of directory /var/lib/apt/lists/partial failed - SetupAPTPartialDirectory (1: Операция не позволена)
+E: Не удалось открыть файл блокировки /var/lib/apt/lists/lock - open (13: Отказано в доступе)
+E: Невозможно заблокировать каталог /var/lib/apt/lists/
+W: Проблема при удалении файла /var/cache/apt/pkgcache.bin - RemoveCaches (13: Отказано в доступе)
+W: Проблема при удалении файла /var/cache/apt/srcpkgcache.bin - RemoveCaches (13: Отказано в доступе)
+test_user5@Ubuntu-MySQL-VirtualBox:/home/student$ 
+
+# что то пошло не - root оказался безправным - удяляем учетную запись рекурсивно.
+student@Ubuntu-MySQL-VirtualBox:~$ sudo userdel -rf test_user5
+userdel: почтовый ящик test_user5 (/var/mail/test_user5) не найден
+
+student@Ubuntu-MySQL-VirtualBox:~$ su test_user5
+Отсутствует passwd-запись для пользователя «test_user5»
+student@Ubuntu-MySQL-VirtualBox:~$ passwd test_user5
+passwd: пользователь «test_user5» не существует
+student@Ubuntu-MySQL-VirtualBox:~$ 
+
